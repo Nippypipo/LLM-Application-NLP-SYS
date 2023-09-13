@@ -8,7 +8,7 @@ from langchain.chains import LLMChain, SimpleSequentialChain, SequentialChain
 from langchain.memory import ConversationBufferMemory
 
 
-os.environ['OPENAI_API_KEY'] = apikey
+os.environ['OPENAI_API_KEY'] = st.secrets["apikey"]
 
 # App framework
 st.title('🤡 Parody Literature Creation 📝')
