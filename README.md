@@ -1,1 +1,1 @@
-# LLM Application 
+# LLM Application - Parody Literature Creator
