@@ -11,7 +11,7 @@ from langchain.memory import ConversationBufferMemory
 os.environ['OPENAI_API_KEY'] = apikey
 
 # App framework
-st.title('🤡 Parody Literature Creator 📝')
+st.title('🤡 Parody Literature Creation 📝')
 prompt_title = st.text_input('Plug in your title here')
 prompt_genre = st.selectbox(
     'Select your genre',
