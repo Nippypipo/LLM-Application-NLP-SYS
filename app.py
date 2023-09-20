@@ -43,6 +43,54 @@ dialogue_template = PromptTemplate(
     template = "Write an example dialogue less than 200 words that show the moral lesson of this story STORY: {story}"
 )
 
+wordplay_list_template = PromptTemplate(
+    input_variables = ['title'],
+    template = 
+    """ Give me 6 pairs of phrases that have the pattern of similarity that maintain some phonetic similarity where the first word and the last word have exchanged their first consonants like these example in theree slash:
+    ///
+    - "cut my hair" and "care my heart"
+    - "bad guy" and "buy gas".
+    - "hard disk" and "this heart"
+    - "pat my back" and "bat my pack"
+    - "lit my candle" and "kit my handle"
+    - "cap my bottle" and "bap my cottle"
+    - "hug my bear" and "bug my hair"
+    - "tack my board" and "back my toard"
+    ///
+    
+    and the response should follow the instructions below.
+
+1. all pair of phrases should have the real meaning in English language
+2. all pair of phrases should be relevant to {title} story
+    """
+)
+
+wordplay_dialogue_template = PromptTemplate(
+    input_variables = ['wordplay'],
+    template = 
+    """
+    Use some list in the LISTS that contains 10 wordplay pairs of phrases to create a dialogue where the phrases in the same list should be in the same sentence in dialogue.
+    You should mark asterisk sign between the pharses from the pairs of phrases that you chose from the LISTS in the dialogue that you create.
+    For example, each phrases in particular list should be in the same sentence.
+    LISTS: '''{wordplay}'''
+
+    For example, if you choose the pairs of pharses from this three list
+    - "cut my hair" and "care my heart"
+    - "bad guy" and "buy gas".
+    - "hard disk" and "this heart"
+    The response should be like the example text in the three slash.
+
+    ///
+    characterA: I want to "cut my hair" because you do not "care my heart". 
+
+    characterB: He is not a "bad guy", he just "buy gas" 
+
+    characterA: I want to remove him from the "hard disk", but he is still in "this heart". 
+    ///
+
+"""
+)
+
 # Memory
 story_memory = ConversationBufferMemory(input_key='title', memory_key='chat_history')
 dialogue_memory = ConversationBufferMemory(input_key='story', memory_key='chat_history')
@@ -53,15 +101,22 @@ story_chain = LLMChain(llm=llm, prompt=story_template, verbose=True
                        , output_key='story', memory=story_memory)
 dialogue_chain = LLMChain(llm=llm, prompt=dialogue_template, verbose=True
                         , output_key='dialogue', memory=dialogue_memory)
-sequential_chain = SequentialChain(chains=[story_chain, dialogue_chain]
+wordplay_list_chain = LLMChain(llm=llm, prompt=wordplay_list_template, verbose=True
+                        , output_key='wordplay')
+wordplay_dialogue_chain = LLMChain(llm=llm, prompt=wordplay_dialogue_template, verbose=True
+                        , output_key='dialogue_wordplay')
+
+sequential_chain = SequentialChain(chains=[story_chain, dialogue_chain, wordplay_list_chain, wordplay_dialogue_chain]
                                    , input_variables=['title', 'genre', 'moral']
-                                   , output_variables=['story', 'dialogue'], verbose = True)
+                                   , output_variables=['story', 'dialogue', 'wordplay', 'dialogue_wordplay'], verbose = True)
 
 # Show stuff to the screen if there's prompt
 if prompt_title and prompt_genre and prompt_moral:
     response = sequential_chain({'title':prompt_title,'genre':prompt_genre, 'moral':prompt_moral})
     st.write(response['story'])
     st.write(response['dialogue'])
+    st.write(response['wordplay'])
+    st.write(response['dialogue_wordplay'])
 
     with st.expander('Story History'):
         st.info(story_memory.buffer)
@@ -69,4 +124,4 @@ if prompt_title and prompt_genre and prompt_moral:
         st.info(dialogue_memory.buffer)
 
 
-        
+
